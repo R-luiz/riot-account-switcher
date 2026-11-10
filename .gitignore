@@ -1,0 +1,14 @@
+bin/
+obj/
+dist/
+.vs/
+*.user
+*.suo
+*.log
+vault.json
+vault.json.tmp
+*.pfx
+*.p12
+*.key
+.env
+.env.*

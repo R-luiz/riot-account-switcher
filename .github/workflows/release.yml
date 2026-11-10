@@ -1,0 +1,80 @@
+name: Build release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: windows-2025
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Set up .NET SDK
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Check release version
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+          REF_TYPE: ${{ github.ref_type }}
+        run: |
+          [xml] $project = Get-Content RiotAccountSwitcher.csproj -Raw
+          $version = $project.SelectSingleNode('/Project/PropertyGroup/Version').InnerText
+          if ($env:REF_TYPE -eq 'tag' -and $env:RELEASE_TAG -ne "v$version") {
+            throw 'Git tag must match the project version.'
+          }
+      - name: Build installation assets
+        run: |
+          $release = ./build-release.ps1
+          "SETUP_PATH=$($release.Setup)" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "PORTABLE_PATH=$($release.Portable)" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Check portable contents and hashes
+        run: |
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $zip = [IO.Compression.ZipFile]::OpenRead($env:PORTABLE_PATH)
+          try {
+            $expected = @('LICENSE', 'README.md', 'RiotAccountSwitcher.exe', 'RiotAccountSwitcher.exe.config')
+            $difference = Compare-Object $expected @($zip.Entries.FullName)
+            if ($difference) { throw 'Portable archive contains missing or unexpected files.' }
+          } finally { $zip.Dispose() }
+          foreach ($line in Get-Content dist/SHA256SUMS.txt) {
+            $hash, $name = $line -split '  ', 2
+            if ((Get-FileHash (Join-Path dist $name) -Algorithm SHA256).Hash -ne $hash) {
+              throw "Checksum mismatch: $name"
+            }
+          }
+      - name: Exercise installer lifecycle on clean Windows
+        run: ./packaging/smoke-install.ps1 -SetupPath $env:SETUP_PATH
+      - name: Upload installation assets
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: RiotAccountSwitcher-windows-x64
+          path: |
+            dist/*-Setup-x64.exe
+            dist/*-Portable-x64.zip
+            dist/SHA256SUMS.txt
+          if-no-files-found: error
+      - name: Prepare draft GitHub release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          $assets = @(Get-ChildItem dist -File | ForEach-Object FullName)
+          gh release create $env:RELEASE_TAG @assets --verify-tag --draft --title "Riot Account Switcher $env:RELEASE_TAG" --notes-file CHANGELOG.md
+          if ($LASTEXITCODE -ne 0) { throw 'Draft release creation failed.' }
