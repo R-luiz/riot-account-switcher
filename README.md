@@ -95,7 +95,7 @@ The original implementation was exercised with two accounts on one Windows PC, i
 
 ## Code signing policy
 
-**Status: SignPath Foundation enrollment is in progress; no approval has been granted. Published releases remain unsigned.** This project does not currently claim SignPath endorsement or certificate coverage.
+**Status: the application was submitted to SignPath Foundation on 11 November 2026 and is awaiting review; no approval has been granted. Published releases remain unsigned.** This project does not currently claim SignPath endorsement or certificate coverage.
 
 - Maintainer, reviewer, and prospective signing approver: [R-luiz](https://github.com/R-luiz).
 - Any future signing request must originate from this repository's versioned source and GitHub Actions build. The maintainer reviews contributions and manually approves releases; downloaded or unrelated third-party executables must not be signed under this project.
