@@ -1,110 +1,124 @@
 # Riot Account Switcher
 
-A small Windows app for switching between your own Riot accounts and opening League of Legends. Sign in once through Riot's official screen; unlock saved sign-ins with Windows Hello. The switcher never asks for, stores, pastes, or autofills your Riot password.
+Switch between your own Riot accounts and open League of Legends without retyping your password each time.
 
-**Unofficial software, not affiliated with or endorsed by Riot Games.** Created by [R-luiz](https://github.com/R-luiz).
+Sign in once through the official Riot Client, enable **Stay signed in**, then choose an account in the switcher. **Windows Hello** protects access to the saved sign-ins.
 
-## Install
+Created by [R-luiz](https://github.com/R-luiz). An independent, open-source project—not affiliated with or endorsed by Riot Games.
 
-1. Open [the latest release](https://github.com/R-luiz/riot-account-switcher/releases/latest).
-2. Download `RiotAccountSwitcher-<version>-Setup-x64.exe` from **Assets**, not GitHub's source-code ZIP.
-3. Run the installer, then open **Riot Account Switcher** from the Start menu.
+## Get started
 
-Installation is for your Windows user only and does not request administrator access. A Desktop shortcut is optional. No terminal, SDK, Pengu Loader, browser extension, or Riot API key is required.
+1. Download `RiotAccountSwitcher-<version>-Setup-x64.exe` from [the latest release](https://github.com/R-luiz/riot-account-switcher/releases/latest).
+2. Install it and open **Riot Account Switcher** from the Start menu.
+3. Choose **+ Add account**. Sign in in Riot's own window, complete any verification, and tick **Stay signed in**.
+4. Add your other accounts the same way. Click an account to switch to it.
 
-Requirements:
+The installer works for your Windows user without administrator access. A Desktop shortcut is optional. You do not need Pengu Loader, a browser extension, a Riot developer API key, or programming tools.
 
-- Windows 10 or 11 on an Intel/AMD 64-bit PC. ARM and macOS/Linux are not supported by this release.
-- .NET Framework 4.8 or newer. The installer checks this and explains how to obtain it if missing; it does not silently download software.
-- Windows Hello configured under **Settings > Accounts > Sign-in options**.
-- Riot Client and League of Legends installed. Run the switcher and Riot as the same normal Windows user.
+**Requirements:** Windows 10/11 on an Intel/AMD 64-bit PC, .NET Framework 4.8 or newer, Windows Hello configured, and Riot Client with League of Legends installed. Run Riot and the switcher as the same normal Windows user. The current launcher opens League's live version, not every Riot game.
 
-Prefer no installer? Download `RiotAccountSwitcher-<version>-Portable-x64.zip`, extract it, and run `RiotAccountSwitcher.exe`. Keep its `.exe.config` file beside it. "Portable" means no installation, **not portable saved accounts**: account data still belongs to the current Windows user.
+For installation-free use, download the **Portable-x64.zip**, extract it, and run `RiotAccountSwitcher.exe`. Keep its `.exe.config` file beside it. Both editions save account data in your Windows profile; the portable ZIP does not make saved sign-ins transferable between PCs.
 
-## Windows security warnings
+## How it works
 
-**Releases are not code-signed.** When you run the downloaded installer, Microsoft Defender SmartScreen shows "Windows protected your PC" ("Windows a protégé votre ordinateur") with **Unknown publisher** ("Éditeur inconnu").
+The switcher uses **saved sessions, not saved passwords**. A session is the sign-in information Riot keeps when you choose **Stay signed in**.
 
-That dialog means Windows found no publisher signature and the file is too new to have download reputation. It is a reputation prompt, not a malware detection. Naming the author in the app or installer cannot change it: Windows only shows a publisher taken from an Authenticode signature issued by a trusted certificate authority to a verified legal identity, and Microsoft states that newly signed apps can still be warned until reputation builds. See [Microsoft's SmartScreen guidance](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation).
+When switching to a saved account, the app:
 
-Before running it, download only from this repository's releases and compare the file's hash with that release's `SHA256SUMS.txt`:
+1. Checks for a running game and League phases where closing the client could interrupt play.
+2. Asks Windows Hello to unlock the saved sign-ins. You confirm in Windows' PIN, fingerprint, or face dialog.
+3. Closes the League and Riot clients so their session files can be replaced.
+4. Saves an encrypted snapshot of the outgoing account's Riot Client `Data` folder. It refreshes this snapshot each time you switch away because Riot updates its session tokens.
+5. Restores the selected account's snapshot and launches the official Riot Client to open League.
+
+It reads account identity and client status through Riot's **local API on your computer**. It does not automate the login form or bypass Riot's authentication. If a session expires or Riot requests verification, you sign in normally again.
+
+Opening an already-active account simply opens League. Initial onboarding may not need a Hello prompt because there is no saved session to unlock yet.
+
+## Privacy and security boundaries
+
+### What the app protects
+
+- **Your Riot password stays in Riot's sign-in flow.** The switcher does not request, store, paste, or autofill it.
+- **Saved inactive sessions are encrypted.** Windows DPAPI protects each snapshot for your Windows user, with additional key material derived through Windows Hello. The Hello private key stays managed by Windows; the derived key is not saved to disk.
+- **There is no weaker fallback.** If Windows Hello is unavailable, the app cannot save or unlock encrypted snapshots without it.
+- **Account data stays on your computer.** The switcher has no telemetry or account-upload service. Its client API requests go to localhost. The official Riot Client still connects to Riot as usual.
+
+The source code and [build workflow](.github/workflows/release.yml) are public so you can inspect how the app works and how release files are produced.
+
+### What to keep in mind
+
+Saved sessions grant account access, just like Riot's own **Stay signed in** feature. While an account is active, Riot needs its session in Riot's data folder; encrypting the switcher's saved copies does not protect that active session against malware running as your Windows user. Account names, identifiers, labels, and action logs are readable.
+
+Do not share your vault or Riot session files. After a Windows reinstall, Hello key reset, or loss of Windows encryption keys, you may need to add your accounts again. Copying the vault to another PC is not a supported way to transfer sign-ins.
+
+The app does not modify game memory or Vanguard. It relies on unofficial Riot client APIs and session files, which Riot may change. No anti-cheat compatibility or security-certification claim is made.
+
+## Everyday use
+
+- **Click an account:** switch to it, or open League if it is already active.
+- **Account menu > Rename label:** give it a label such as Main or Smurf.
+- **Account menu > Remove:** delete its saved entry. Removing the active account also closes the clients and clears its active local session after confirmation.
+
+Finish matchmaking, champion select, or your game before switching. The app blocks switching when it detects a running game or a committed League phase, but phase detection depends on the local API being available.
+
+Use the switcher rather than Riot's **Sign out** when changing accounts: signing out may revoke a saved session. Being asked to sign in again after a session expires is normal.
+
+## Windows SmartScreen
+
+**Current releases are unsigned.** Windows may show **“Windows protected your PC” / “Windows a protégé votre ordinateur”** and **“Unknown publisher” / “Éditeur inconnu.”** That specific message concerns publisher identity and download reputation; it is not, by itself, a malware detection.
+
+Download from this repository's releases and use the included `SHA256SUMS.txt` to check that your file matches the published download:
 
 ```powershell
 Get-FileHash .\RiotAccountSwitcher-*-Setup-x64.exe -Algorithm SHA256
 ```
 
-If the hash matches and you trust this source, **More info > Run anyway** ("Informations complémentaires" > "Exécuter quand même") starts the installer. A checksum identifies the published bytes; it is not a signature or proof of safety, and a clean antivirus scan does not guarantee that another product will accept the app.
+A matching checksum confirms the bytes, not their safety. If you trust the source after checking it, Windows may offer **More info > Run anyway**. Some security policies block unsigned apps entirely. Do not disable antivirus protection, add exclusions, or install a self-signed trust certificate to run the app.
 
-Smart App Control or an organization's policy can block unsigned apps with no option to continue. Do not disable Defender, add exclusions, or install a self-signed root certificate to use this app. If an antivirus reports a detection, keep the protection enabled and report the detection name and release version without uploading your account data.
+Trusted code signing is being pursued; see the [code signing policy](#code-signing-policy). Even newly signed apps can receive reputation warnings, as explained in [Microsoft's SmartScreen guidance](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation).
 
-## Use
+## Updates, uninstall, and local files
 
-- **+ Add account**: closes League and the Riot Client, then opens Riot's official sign-in screen. Sign in normally, including MFA, and enable **Stay signed in**.
-- **Click an account**: confirm Windows Hello. The switcher saves the outgoing session, restores the selected session, and opens League. Clicking the already-active account just opens League.
-- **Account menu > Rename label**: use a label such as Main or Smurf.
-- **Account menu > Remove**: forget its saved sign-in. Removing the active account also closes the clients and signs it out after confirmation.
+To update, close the switcher and run the newer installer. Installation and uninstallation are blocked while the app is open, so it is not forcibly stopped during a switch.
 
-The application checks for running League/Valorant game processes and committed League phases before switching. Do not use it during matchmaking or a match; unavailable client APIs can limit phase detection.
-
-Use the switcher rather than Riot's **Sign out** when changing accounts: signing out can revoke a saved session. Riot can expire sessions or request verification at any time. Sign in manually again when asked. The launcher currently targets League's live patchline, not arbitrary Riot games.
-
-## Privacy and security boundaries
-
-Saved session snapshots are encrypted with Windows DPAPI for the current user, using additional entropy derived from a Windows Hello signature. The Hello private key remains managed by Windows. There is no DPAPI-only fallback if Hello is unavailable.
-
-**Sessions are credentials too.** Riot needs the active session in its own data folder. This does not protect it against same-user malware, an unlocked compromised PC, or a compromised Riot Client. Account names, identifiers, labels, and action logs are readable; session snapshots are encrypted in the vault. The app reads local client APIs on loopback and has no analytics or account-upload service.
-
-A Windows reinstall, Hello key reset, or loss of DPAPI keys can make saved sessions unreadable. Sign in again; do not copy a vault to another PC expecting it to decrypt. Every recipient must add their own accounts.
-
-This tool replaces Riot Client session files and starts/stops client processes; it does not modify game memory or Vanguard. Riot's internal file formats and local APIs are unofficial and may change. No Riot approval, anti-cheat compatibility guarantee, or security certification is claimed.
-
-## Updates and uninstall
-
-Close the switcher, then run a newer installer. Installation/uninstallation is blocked while the switcher is open; it is not forcibly terminated mid-switch.
-
-Uninstall from **Settings > Apps > Installed apps**. Uninstall removes the application and installer-created shortcuts, but deliberately preserves saved accounts, logs, the Hello credential, and Riot's own data. To forget accounts, remove them inside the app before uninstalling. Uninstalling is not a Riot sign-out or server-side session revocation.
-
-Local files:
+Uninstall through **Settings > Apps > Installed apps**. This removes the installed app and its installer-created shortcuts, but leaves account data, logs, the Hello credential, and Riot's files alone. Remove accounts in the app first if you want to forget their saved entries. Uninstalling is not a Riot sign-out or server-side session revocation.
 
 | Location | Contents |
 |---|---|
 | `%LOCALAPPDATA%\Programs\RiotAccountSwitcher` | Installed app and uninstaller |
-| `%LOCALAPPDATA%\RiotAccountSwitcher\vault.json` | Account metadata and encrypted sessions |
-| `%LOCALAPPDATA%\RiotAccountSwitcher\switcher.log` | Action/error log, potentially containing account names |
-| `%LOCALAPPDATA%\Riot Games\Riot Client\Data` | Riot-owned active session; never share |
+| `%LOCALAPPDATA%\RiotAccountSwitcher\vault.json` | Account list and encrypted session snapshots |
+| `%LOCALAPPDATA%\RiotAccountSwitcher\switcher.log` | Action/error log; may include account names |
+| `%LOCALAPPDATA%\Riot Games\Riot Client\Data` | Riot's active session files |
 
-Windows Hello credential name: `RiotAccountSwitcher`. Never attach your vault, Riot data, lockfiles, or unredacted logs to issues.
+Windows Hello credential name: `RiotAccountSwitcher`. When reporting a problem, share the error and app version—not your vault, session files, lockfiles, or unredacted logs.
 
-## Build and release
+## Build from source
 
-Source: C# 10, WPF, .NET Framework 4.8, x64. Build on Windows with a .NET SDK supporting C# 10 or newer, the .NET Framework 4.8 targeting pack, and [Inno Setup 6.7 or newer](https://jrsoftware.org/isdl.php).
+The app uses C# 10, WPF, and .NET Framework 4.8, targeting x64. Building requires Windows, a .NET SDK supporting C# 10 or newer, the .NET Framework 4.8 targeting pack, and [Inno Setup 6.7 or newer](https://jrsoftware.org/isdl.php).
 
 ```powershell
 .\build-release.ps1
-# If Inno Setup is installed elsewhere:
+# If the compiler is installed elsewhere:
 .\build-release.ps1 -IsccPath 'C:\path\to\ISCC.exe'
 ```
 
-The script builds the application and creates the installer, portable ZIP, and SHA-256 manifest under `dist/`. Payloads use an explicit file allowlist: application, configuration, README, and license only. No account data, logs, or development dependencies are bundled. `install.ps1` is a developer convenience that builds these same assets and starts the installer.
+The script creates the installer, portable ZIP, and SHA-256 manifest under `dist/`. Only the executable, configuration, README, and license enter the application payload—not local account data or logs. `install.ps1` builds these same assets and starts the installer.
 
-The GitHub Actions workflow builds and exercises installation, application launch, upgrade protection, and uninstall on a clean Windows runner. Manual runs produce downloadable workflow artifacts. Pushing a `v<version>` tag matching the project version prepares a draft GitHub release after successful checks. Review and scan those exact assets before publishing the draft. Actions are pinned to commit hashes.
+The GitHub Actions workflow checks installation, application startup, upgrade protection, uninstall, and vault preservation on a clean Windows runner. A matching `v<version>` tag prepares a draft release for review before publication. Actions are pinned to commit hashes.
 
-## Verification scope
-
-The original implementation was exercised with two accounts on one Windows PC, including Windows Hello and restored sign-ins in both directions. Public packaging checks do not authenticate a Riot account in CI. Long-term session expiry, other regions, Hello-reset recovery, and every Windows/security-policy combination have not been verified.
+Actual Riot sign-ins were tested locally with two accounts and Windows Hello, including switching in both directions. CI checks packaging and application startup, not Riot authentication. Long-term expiry, other regions, and recovery after a Hello reset have not been verified.
 
 ## Code signing policy
 
-**Status: the application was submitted to SignPath Foundation on 11 November 2026 and is awaiting review; no approval has been granted. Published releases remain unsigned.** This project does not currently claim SignPath endorsement or certificate coverage.
+The SignPath Foundation application was submitted on **11 November 2026** and is awaiting review. **No approval has been granted; published releases remain unsigned.** No SignPath endorsement or certificate coverage is currently claimed.
 
 - Maintainer, reviewer, and prospective signing approver: [R-luiz](https://github.com/R-luiz).
-- Any future signing request must originate from this repository's versioned source and GitHub Actions build. The maintainer reviews contributions and manually approves releases; downloaded or unrelated third-party executables must not be signed under this project.
-- Maintainer accounts used for source control and signing must use multi-factor authentication. Provider enrollment and approval are prerequisites, not completed setup.
-- Any granted signing credentials stay in the signing provider or protected build secrets, never in the repository, release files, or chat.
-- If approved, the project will identify the signing service and certificate owner in this section and on its release pages. The current binaries must not be described as signed until their signatures are verified.
-- Privacy: the switcher does not upload account data or telemetry. It reads local Riot APIs and session files; launching the official Riot Client allows that client to contact Riot under Riot's own policies. See [Privacy and security boundaries](#privacy-and-security-boundaries).
+- Signing must use this repository's versioned source and GitHub Actions builds, with contribution review and manual release approval—not unrelated executables.
+- Source-control and signing accounts must use multi-factor authentication. Signing credentials belong in the provider or protected build secrets, never in source code or release files.
+- If approved, the provider and certificate owner will be identified here and on release pages. A build will only be described as signed after its signatures are verified.
+- The [privacy policy above](#privacy-and-security-boundaries) also applies to signing-enabled releases: no account uploads or telemetry.
 
 ## License
 
 [MIT](LICENSE), copyright (c) 2026 R-luiz. Riot Games names and trademarks belong to their respective owners.
-
