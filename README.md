@@ -2,7 +2,7 @@
 
 A small Windows app for switching between your own Riot accounts and opening League of Legends. Sign in once through Riot's official screen; unlock saved sign-ins with Windows Hello. The switcher never asks for, stores, pastes, or autofills your Riot password.
 
-**Unofficial software, not affiliated with or endorsed by Riot Games.**
+**Unofficial software, not affiliated with or endorsed by Riot Games.** Created by [R-luiz](https://github.com/R-luiz).
 
 ## Install
 
@@ -23,17 +23,19 @@ Prefer no installer? Download `RiotAccountSwitcher-<version>-Portable-x64.zip`, 
 
 ## Windows security warnings
 
-**The initial release is unsigned.** An unknown-publisher or SmartScreen warning is possible; some Windows policies and Smart App Control can block it. A clean antivirus scan does not establish SmartScreen reputation or guarantee that another antivirus will accept the app.
+**Releases are not code-signed.** When you run the downloaded installer, Microsoft Defender SmartScreen shows "Windows protected your PC" ("Windows a protégé votre ordinateur") with **Unknown publisher** ("Éditeur inconnu").
 
-Download only from this repository's releases. Each release includes `SHA256SUMS.txt`; compare a downloaded file's hash using:
+That dialog means Windows found no publisher signature and the file is too new to have download reputation. It is a reputation prompt, not a malware detection. Naming the author in the app or installer cannot change it: Windows only shows a publisher taken from an Authenticode signature issued by a trusted certificate authority to a verified legal identity, and Microsoft states that newly signed apps can still be warned until reputation builds. See [Microsoft's SmartScreen guidance](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation).
+
+Before running it, download only from this repository's releases and compare the file's hash with that release's `SHA256SUMS.txt`:
 
 ```powershell
-Get-FileHash .\RiotAccountSwitcher-1.0.0-Setup-x64.exe -Algorithm SHA256
+Get-FileHash .\RiotAccountSwitcher-*-Setup-x64.exe -Algorithm SHA256
 ```
 
-Checksums identify the published bytes; they are not a code-signing certificate or proof of safety. Do not disable Defender, add exclusions, or install a self-signed root certificate to use this app. If Windows blocks it, keep the protection enabled and report the detection name and release version without uploading your account data.
+If the hash matches and you trust this source, **More info > Run anyway** ("Informations complémentaires" > "Exécuter quand même") starts the installer. A checksum identifies the published bytes; it is not a signature or proof of safety, and a clean antivirus scan does not guarantee that another product will accept the app.
 
-Trusted publisher signing requires a verified signing identity; even signed new apps can receive reputation warnings. See [Microsoft's SmartScreen guidance](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation).
+Smart App Control or an organization's policy can block unsigned apps with no option to continue. Do not disable Defender, add exclusions, or install a self-signed root certificate to use this app. If an antivirus reports a detection, keep the protection enabled and report the detection name and release version without uploading your account data.
 
 ## Use
 
@@ -93,5 +95,5 @@ The original implementation was exercised with two accounts on one Windows PC, i
 
 ## License
 
-[MIT](LICENSE). Riot Games names and trademarks belong to their respective owners.
+[MIT](LICENSE), copyright (c) 2026 R-luiz. Riot Games names and trademarks belong to their respective owners.
 

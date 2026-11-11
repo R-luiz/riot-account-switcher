@@ -89,6 +89,10 @@
             <ProgressBar x:Name="Progress" Height="2" IsIndeterminate="True" Visibility="Hidden"
                          BorderThickness="0" Background="Transparent" Foreground="{StaticResource Accent}" />
             <TextBlock x:Name="Status" Margin="2,8,2,0" TextWrapping="Wrap" Foreground="{StaticResource Muted}" FontSize="12" />
+            <TextBlock Margin="2,8,2,0" HorizontalAlignment="Right" Foreground="{StaticResource Muted}" FontSize="11">
+                Created by <Hyperlink NavigateUri="https://github.com/R-luiz" RequestNavigate="OnCreditNavigate"
+                                      Foreground="{StaticResource Fg}">R-luiz</Hyperlink>
+            </TextBlock>
         </StackPanel>
     </Grid>
 </Window>

@@ -10,7 +10,7 @@
     <AssemblyName>RiotAccountSwitcher</AssemblyName>
     <RootNamespace>RiotAccountSwitcher</RootNamespace>
     <Product>Riot Account Switcher</Product>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Authors>R-luiz</Authors>
     <Description>Local Riot account switching with Windows Hello-protected saved sessions.</Description>
     <Copyright>Copyright (c) 2026 R-luiz</Copyright>

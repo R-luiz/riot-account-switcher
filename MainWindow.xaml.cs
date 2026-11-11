@@ -11,6 +11,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
+using System.Windows.Navigation;
 
 namespace RiotAccountSwitcher
 {
@@ -482,6 +483,12 @@ namespace RiotAccountSwitcher
             Banner.BorderBrush = new SolidColorBrush(Color.FromArgb(0x80, color.R, color.G, color.B));
             BannerText.Text = text;
             Banner.Visibility = Visibility.Visible;
+        }
+
+        void OnCreditNavigate(object sender, RequestNavigateEventArgs e)
+        {
+            using (Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true })) { }
+            e.Handled = true;
         }
 
         void OnMenuClick(object sender, RoutedEventArgs e)
