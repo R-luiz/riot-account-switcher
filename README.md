@@ -93,6 +93,17 @@ The GitHub Actions workflow builds and exercises installation, application launc
 
 The original implementation was exercised with two accounts on one Windows PC, including Windows Hello and restored sign-ins in both directions. Public packaging checks do not authenticate a Riot account in CI. Long-term session expiry, other regions, Hello-reset recovery, and every Windows/security-policy combination have not been verified.
 
+## Code signing policy
+
+**Status: SignPath Foundation enrollment is in progress; no approval has been granted. Published releases remain unsigned.** This project does not currently claim SignPath endorsement or certificate coverage.
+
+- Maintainer, reviewer, and prospective signing approver: [R-luiz](https://github.com/R-luiz).
+- Any future signing request must originate from this repository's versioned source and GitHub Actions build. The maintainer reviews contributions and manually approves releases; downloaded or unrelated third-party executables must not be signed under this project.
+- Maintainer accounts used for source control and signing must use multi-factor authentication. Provider enrollment and approval are prerequisites, not completed setup.
+- Any granted signing credentials stay in the signing provider or protected build secrets, never in the repository, release files, or chat.
+- If approved, the project will identify the signing service and certificate owner in this section and on its release pages. The current binaries must not be described as signed until their signatures are verified.
+- Privacy: the switcher does not upload account data or telemetry. It reads local Riot APIs and session files; launching the official Riot Client allows that client to contact Riot under Riot's own policies. See [Privacy and security boundaries](#privacy-and-security-boundaries).
+
 ## License
 
 [MIT](LICENSE), copyright (c) 2026 R-luiz. Riot Games names and trademarks belong to their respective owners.
