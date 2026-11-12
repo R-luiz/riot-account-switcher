@@ -76,7 +76,7 @@ Get-FileHash .\RiotAccountSwitcher-*-Setup-x64.exe -Algorithm SHA256
 
 A matching checksum confirms the bytes, not their safety. If you trust the source after checking it, Windows may offer **More info > Run anyway**. Some security policies block unsigned apps entirely. Do not disable antivirus protection, add exclusions, or install a self-signed trust certificate to run the app.
 
-Trusted code signing is being pursued; see the [code signing policy](#code-signing-policy). Even newly signed apps can receive reputation warnings, as explained in [Microsoft's SmartScreen guidance](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation).
+Releases are not code-signed yet; see the [code signing policy](#code-signing-policy). Even newly signed apps can receive reputation warnings, as explained in [Microsoft's SmartScreen guidance](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation).
 
 ## Updates, uninstall, and local files
 
@@ -111,12 +111,12 @@ Actual Riot sign-ins were tested locally with two accounts and Windows Hello, in
 
 ## Code signing policy
 
-The SignPath Foundation application was submitted on **11 November 2026** and is awaiting review. **No approval has been granted; published releases remain unsigned.** No SignPath endorsement or certificate coverage is currently claimed.
+**Published releases are unsigned.** An application to the SignPath Foundation free signing program was not approved in November 2026; the project may reapply later. No signing provider or certificate currently covers these releases.
 
 - Maintainer, reviewer, and prospective signing approver: [R-luiz](https://github.com/R-luiz).
 - Signing must use this repository's versioned source and GitHub Actions builds, with contribution review and manual release approval—not unrelated executables.
 - Source-control and signing accounts must use multi-factor authentication. Signing credentials belong in the provider or protected build secrets, never in source code or release files.
-- If approved, the provider and certificate owner will be identified here and on release pages. A build will only be described as signed after its signatures are verified.
+- If releases become signed, the provider and certificate owner will be identified here and on release pages. A build will only be described as signed after its signatures are verified.
 - The [privacy policy above](#privacy-and-security-boundaries) also applies to signing-enabled releases: no account uploads or telemetry.
 
 ## License
